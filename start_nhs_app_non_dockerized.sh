@@ -11,11 +11,16 @@
 # the solr configs to the keeper
 
 
-
+if [[ $(hostname) == "pjmd-ubuntu16" ]]; then
+	PYCHARM_PROJECT="PycharmProjects"
+else
+	PYCHARM_PROJECT="PychramProjects"
+fi
+echo $PYCHARM_PROJECT
 root_dir=${2:-"/home/pjmd"}
 zoo_root=$root_dir"/apache-zookeeper-3.5.5-bin"
 solr_root=$root_dir"/solr-7.7.2"
-project_root=$root_dir/python_workspace/PychramProjects
+project_root=$root_dir/python_workspace/$PYCHARM_PROJECT
 echo "User home folder: $root_dir"
 echo "Zoo Root folder: $zoo_root"
 echo "Solr Root: $solr_root"
@@ -42,7 +47,7 @@ function start_zookeeper() {
 	# upload solr configset (ther ref one) to zookeeper
 	$solr_root/server/scripts/cloud-scripts/zkcli.sh -z localhost:2181,localhost:2182,localhost:2183/my_solr_conf -cmd upconfig \
 													-confname mongoConnectorBaseConfig \
-													-confdir /home/pjmd/python_workspace/PychramProjects/scrapy_nhs/nhs/resources/solr/configsets/mongoConnectorConfig/conf
+													-confdir /home/pjmd/python_workspace/$PYCHARM_PROJECT/scrapy_nhs/nhs/resources/solr/configsets/mongoConnectorConfig/conf
 }
 
 function start_solr() {
@@ -77,9 +82,11 @@ function delete_collection() {
 }
 
 function start_from_clean_slate() {
-	start_solr
-	delete_collection
 	start_zookeeper
+	start_solr
+	sleep 2
+	delete_collection
+	sleep 2
 	create_solr_collection
 }
 
