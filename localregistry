@@ -1,0 +1,76 @@
+#!/bin/bash
+
+HUB=pjmd-ubuntu.com
+
+function usage() {
+cat << EOF
+Usage: $(basename $0) [-l | -a]
+  options:
+    -l list all the repos
+    -a list all the repos and versions
+    -i <image name> list all the version for this image name
+
+  note:
+    $(basename $0) requires jq to be installed on the machine: snap install jq
+EOF
+exit 0
+}
+
+
+function get_list() {
+list=$(curl --silent --insecure -X GET https://$HUB/v2/_catalog)
+ulist=$(echo $list | jq '.repositories' | jq '.[]')
+echo $ulist
+}
+
+
+function list_repos() {
+ulist=$(get_list)
+for i in $ulist; do
+  echo "  $i"
+done
+}
+
+
+function list_image_version() {
+IMAGE=$1
+versions=$(curl --silent --insecure -X GET https://$HUB/v2/$IMAGE/tags/list)
+if [[ "$versions" != "404 page not found" ]]; then
+  tags=$(echo $versions | jq '."tags"' | jq '.[]')
+  for t in $tags; do
+    t=${t%\"}
+    t=${t#\"}
+    echo "  $IMAGE:$t"
+  done
+else
+  echo "ERROR: Unknown image $IMAGE"
+fi
+}
+
+function list_all_images_versions() {
+images=$(get_list)
+for i in $images; do
+  i=${i%\"}
+  i=${i#\"}
+  list_image_version $i
+done
+}
+
+
+if [[ -z "$1" ]]; then
+  usage
+fi
+
+if [[ $1 == "-l" ]]; then
+  printf "list all the local repos:\n\n"
+  list_repos
+elif [[ $1 == "-a" ]]; then
+  printf "list all the local repos and versions\n\n"
+  list_all_images_versions
+elif [[ $1 == "-i" && -z $2 ]]; then
+  usage
+else
+  printf "list all the version for local image:  $2\n\n"
+  list_image_version $2
+fi
+  
