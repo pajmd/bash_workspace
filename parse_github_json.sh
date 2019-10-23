@@ -14,4 +14,4 @@ exit 1
 fi
 
 username=$1
-curl https://api.github.com/users/$username/repos | jq '.[] | .name'
+curl --silent https://api.github.com/users/$username/repos | jq '.[] | .name'
