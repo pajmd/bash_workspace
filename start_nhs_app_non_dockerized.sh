@@ -20,10 +20,12 @@ echo $PYCHARM_PROJECT
 root_dir=${2:-"/home/pjmd"}
 zoo_root=$root_dir"/apache-zookeeper-3.5.5-bin"
 solr_root=$root_dir"/solr-7.7.2"
+kfaka_root=$root_dir"/kafka_2.12-2.3.0"
 project_root=$root_dir/python_workspace/$PYCHARM_PROJECT
 echo "User home folder: $root_dir"
 echo "Zoo Root folder: $zoo_root"
 echo "Solr Root: $solr_root"
+echo "Kfaka_root: $kfaka_root"
 echo "Project root: $project_root"
 
 
@@ -37,6 +39,16 @@ EOF
 	exit 0
 }
 
+
+function start_kafka() {
+	echo "Starting Kafka"
+	$kfaka_root/bin/kafka-server-start.sh $kfaka_root/config/server.properties  > ~/tmp/kafka.log  2>&1 &
+}
+
+function stop_kafka() {
+	echo "Stopping Kafka"
+	$kfaka_root/bin/kafka-server-stop.sh
+}
 
 function start_zookeeper() {
 	# zookeeper on 2181, 2182, 2183
@@ -59,7 +71,7 @@ function start_solr() {
 }
 
 function create_solr_collection() {
-
+	echo "Create collection"
 	####### create config set and collection #########
 	# copy configset the one that will mutate as we feed the collections
 	curl "http://localhost:8983/solr/admin/configs?action=CREATE&name=mongoConnectorConfig&baseConfigSet=mongoConnectorBaseConfig&configSetProp.immutable=false&wt=json&omitHeader=true"
@@ -81,9 +93,14 @@ function delete_collection() {
 	curl "http://localhost:8983/solr/admin/configs?action=DELETE&name=mongoConnectorConfig"
 }
 
-function start_from_clean_slate() {
+function start_zsk() {
 	start_zookeeper
 	start_solr
+	start_kafka
+}
+
+function start_from_clean_slate() {
+	start_zsk
 	sleep 2
 	delete_collection
 	sleep 2
@@ -91,15 +108,14 @@ function start_from_clean_slate() {
 }
 
 function start_app() {
-	start_zookeeper
+	start_zsk
 	# bin/solr cp file:local/file/path/to/solr.xml zk:/znode/solr.xml -z localhost:2181
-
-	start_solr
 	create_solr_collection
 }
 
 function stop_app() {
 	# stop all solr
+	stop_kafka
 	$solr_root/bin/solr stop -all && \
 	$zoo_root/bin/zoo-ensemble.sh stop
 }
