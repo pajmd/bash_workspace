@@ -31,10 +31,11 @@ EOF
 exit 0
 }
 
+# not used
 function get_docker_hub() {
 	TOKEN=`curl "https://auth.docker.io/token?service=registry.docker.io&scope=repository:pajmd/nhs_piper:pull" | jq .token | tr -d \"`
 	curl  -H "Authorization: Bearer $TOKEN" https://registry-1.docker.io/v2/pajmd/nhs_piper/tags/list
-{"name":"pajmd/nhs_piper","tags":["v0.0.1-7-g07f9040","v0.0.2"]}
+	# {"name":"pajmd/nhs_piper","tags":["v0.0.1-7-g07f9040","v0.0.2"]}
 }
 
 function get_docker_hub_images() {
@@ -44,6 +45,7 @@ function get_docker_hub_images() {
 	repos=$(curl -s -H "Authorization: JWT ${TOKEN}" https://hub.docker.com/v2/repositories/${DOCKER_UNAME}/?page_size=10000 | jq -r '.results|.[]|.name')
 	for r in $repos; do
 		tags=$(curl -s -H "Authorization: JWT ${TOKEN}" https://hub.docker.com/v2/repositories/${DOCKER_UNAME}/$r/tags/?page_size=10000 | jq -r '.results|.[]|.name')
+		tags=$(echo $tags | tr " " "\n"  | sort -r)
 		for t in $tags; do
 			printf "$DOCKER_UNAME/$r:$t\n"
 		done
@@ -54,6 +56,7 @@ function get_docker_hub_images() {
 function get_images() {
 	repo=$1
 	images=$(curl --silent -X GET https://$hub/v2/$repo/tags/list | jq '.tags[]')
+	images=$(echo $images | tr " " "\n"  | sort -r)
 	for image in $images; do
 		image=${image#*\"}
 		image=$repo":"${image%*\"}
