@@ -3,6 +3,10 @@
 # Demo returning local variable
 g_var=5555555
 
+echo
+echo See func_return_code.sh for return an error code
+echo
+
 func() {
 	g_var="10"
 	# use  echo "not part of the rurn" >&2 in order not to capture the looging message in the result functio
