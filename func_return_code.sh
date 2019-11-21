@@ -40,3 +40,21 @@ if success ; then
 else
   echo "success faied"
 fi
+
+echo
+echo "Saving rc code"
+rc1=fail
+rc2=success
+
+
+if ! $rc1 ; then
+  echo "fail faied"
+else
+  echo "fail succeeded"
+fi
+
+if $rc2 ; then
+  echo "success succeeded"
+else
+  echo "success faied"
+fi
