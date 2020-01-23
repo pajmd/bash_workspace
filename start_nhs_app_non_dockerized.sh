@@ -19,7 +19,7 @@ fi
 echo $PYCHARM_PROJECT
 root_dir=${2:-"/home/pjmd"}
 zoo_root=$root_dir"/apache-zookeeper-3.5.5-bin"
-solr_root=$root_dir"/solr-7.7.2"
+solr_root=$root_dir"/solr"
 kfaka_root=$root_dir"/kafka_2.12-2.3.0"
 project_root=$root_dir/python_workspace/$PYCHARM_PROJECT
 echo "User home folder: $root_dir"
