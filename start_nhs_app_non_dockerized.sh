@@ -35,6 +35,14 @@ To start the nhs app:
 
 usage: $0 [start|stop|restart|cleanstart] [user home folder]
 
+Note:
+After launching the app, to visualise nhs metrics, start prometheus:
+./prometheus start
+For Kafa metrics first run the exporter: 
+./kafka_prometheus_exporter.sh start
+then Grafana ./grafana.sh start
+
+
 EOF
 	exit 0
 }
