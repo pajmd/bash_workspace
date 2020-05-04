@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-printf "\nUpdating Visual Studio Code from the Downloads folder\n\n"
+printf "\nUpdating Visual Studio Code from a.deb file located in the Downloads folder\n\n"
 version=$(find ~/Downloads -name "code_*"  -ls | tail -1 | awk '{f=""; for(i=8; i<=NF; i++) s= s $i" "; print s}')
 read -p "Is $version correct? (y/n) " resp
 if [[ $resp == "y" || $resp == "Y" ]]; then
